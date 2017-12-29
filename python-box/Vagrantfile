@@ -1,0 +1,40 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Notes:
+# You must install the guest additons.  This plugin is awesome.
+# This is the command for installing the plugin: `vagrant plugin install vagrant-vbguest`
+#
+# Hint, to use putty run `vagrant ssh-config`
+
+
+$script = <<SCRIPT
+    sudo yum update
+    yum -y install git rpm rpm-build vim java-1.8.0-openjdk-devel wget
+    wget https://archive.apache.org/dist/maven/maven-3/3.5.2/binaries/apache-maven-3.5.2-bin.tar.gz
+    tar -xvzf apache-maven-3.5.2-bin.tar.gz
+   
+    #Add Maven to PATH
+    echo export PATH=/home/vagrant/apache-maven-3.5.2/bin:\$PATH >> /home/vagrant/.bashrc
+  
+SCRIPT
+
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "continuumio/anaconda3"
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.name = "python-box"
+    vb.memory = "4096"
+	vb.cpus = 4
+  end
+
+  config.vm.network :private_network, ip: "192.168.33.22"
+  config.vm.hostname = "python-box"
+
+  config.vm.synced_folder "~/.m2", "/home/vagrant/.m2", create: true
+  config.vm.synced_folder "~/workspace", "/home/vagrant/workspace", create: true
+  config.vm.synced_folder "~/python-box", "/home/vagrant/python-box", create: true
+
+  #config.vm.provision "shell", inline: $script
+end
